@@ -1,0 +1,192 @@
+class Vertex:
+    def _init_(self, node):
+        self.id = node
+        self.adjacent = {}
+
+    def _str_(self):
+        return str(self.id) + ' adjacent: ' + str([x.id for x in self.adjacent])
+
+    def add_neighbor(self, neighbor, weight=0):
+        self.adjacent[neighbor] = weight
+
+    def get_connections(self):
+        return self.adjacent.keys()  
+
+    def get_id(self):
+        return self.id
+
+    def get_weight(self, neighbor):
+        return self.adjacent[neighbor]
+
+class Graph:
+    def _init_(self):
+        self.vert_dict = {}
+        self.num_vertices = 0
+
+    def _iter_(self):
+        return iter(self.vert_dict.values())
+
+    def add_vertex(self, node):
+        self.num_vertices = self.num_vertices + 1
+        new_vertex = Vertex(node)
+        self.vert_dict[node] = new_vertex
+        return new_vertex
+
+    def get_vertex(self, n):
+    import sys, time, os.path
+from ncclient import manager
+from getpass import getpass
+from datetime import datetime
+import logging
+ 
+ 
+CREATE_INTERFACE_IP = """
+        <config>
+            <cli-config-data>
+                <cmd>interface %s</cmd>
+                <cmd>description Configured by ncclient</cmd>
+                <cmd>ip address %s %s</cmd>
+                <cmd>no shutdown</cmd>
+            </cli-config-data>
+        </config>
+        """
+ 
+CREATE_OSPF = """
+        <config>
+            <cli-config-data>
+                <cmd>router ospf %i</cmd>
+                <cmd>router-id %s</cmd>
+                <cmd>passive-interface default</cmd>
+                <cmd>no passive-interface %s</cmd>
+                <cmd>network %s 0.0.0.0 area 0</cmd>
+                <cmd>network %s 0.0.0.0 area 0</cmd>
+            </cli-config-data>
+        </config>
+     """
+ 
+ 
+def create_interface_ip(conn, interface, ip, mask):
+    try:
+        config_str = CREATE_INTERFACE_IP % (interface, ip, mask)
+        conn.edit_config(target='running', config=config_str)
+    except Exception:
+        print('Exception occurs while creating interface %s' % interface)
+ 
+ 
+def create_ospf(conn, ospf_id, rid, interface, network1, network2):
+    try:
+        config_str = CREATE_OSPF % (ospf_id, rid, interface, network1, network2)
+        conn.edit_config(target='running', config=config_str)
+    except  Exception:
+        print('Exception occurs while creating ospf %i' % ospf_id)
+ 
+ 
+def r_connect(host,port,usr,passwd):
+    try:
+            return manager.connect(host=host,
+                    port=port,
+                    username=usr,
+                    password=passwd,
+                    hostkey_verify=False)
+    except EnvironmentError:
+        print('Exception occurred while connecting %s' % host)
+ 
+ 
+def main_menu():
+    print(30 * "", "Simple Conf Wizard", 30 * "")
+    print("1. Configure OSPF for router.")
+    print("2. Download router configuration.")
+    print("3. Quit")
+    print(60 * "*")
+ 
+ 
+def conn():
+    user = input('Username: ')
+    password = getpass()
+    #loop = True
+    with r_connect('192.168.1.46','22',user,password) as m:
+        print("Connection is established" )
+        time.sleep(3)
+        #while loop:
+        main_menu()
+        try:
+                choice = int(input("What you want to do? [1-3] "))
+        except ValueError:
+                print("Oops you have entered an invalid choice")
+                #continue
+        if choice == 1:
+            ip = input("Enter IP address for Ethernet0/0: ")
+            mask = input("Enter subnet mask: ")
+            print("Interface has been configured")
+            ospf_id = int(input("Enter OSPF id: "))
+            router_id = input("Enter router id: ")
+            network1 = input("Enter 1st network to be advertised: ")
+            network2 = input("Enter 2nd network to be advertised: ")
+            create_interface_ip(m, "Ethernet0/0", ip, mask)
+            create_ospf(m,ospf_id,router_id,'Ethernet0/0',network1,network2)
+            print("OSPF has been configured")
+            #time.sleep(3)
+        elif choice == 2:
+            path = 'd:/temp/'
+            today = datetime.now().strftime("%d%m%y-%H%M")
+            filename = "config" + today + ".cfg"
+            fullpath = os.path.join(path, filename)
+            output = m.get_config(source='running').data_xml
+            with open(fullpath, "w") as f:
+                f.write(output)
+                print("Backup saved in {}".format(fullpath))
+        elif choice == 3:
+            print("bye")
+        else:
+            print("You may have entered an invalid choice")
+ 
+ 
+if _name_ == '_main_':
+    #logging.basicConfig(level=logging.DEBUG)
+    conn()
+        if n in self.vert_dict:
+            return self.vert_dict[n]
+        else:
+            return None
+
+    def add_edge(self, frm, to, cost = 0):
+        if frm not in self.vert_dict:
+            self.add_vertex(frm)
+        if to not in self.vert_dict:
+            self.add_vertex(to)
+
+        self.vert_dict[frm].add_neighbor(self.vert_dict[to], cost)
+        self.vert_dict[to].add_neighbor(self.vert_dict[frm], cost)
+
+    def get_vertices(self):
+        return self.vert_dict.keys()
+
+if _name_ == '_main_':
+
+    g = Graph()
+
+    g.add_vertex('a')
+    g.add_vertex('b')
+    g.add_vertex('c')
+    g.add_vertex('d')
+    g.add_vertex('e')
+    g.add_vertex('f')
+
+    g.add_edge('a', 'b', 7)  
+    g.add_edge('a', 'c', 9)
+    g.add_edge('a', 'f', 14)
+    g.add_edge('b', 'c', 10)
+    g.add_edge('b', 'd', 15)
+    g.add_edge('c', 'd', 11)
+    g.add_edge('c', 'f', 2)
+    g.add_edge('d', 'e', 6)
+    g.add_edge('e', 'f', 9)
+
+    for v in g:
+        for w in v.get_connections():
+            vid = v.get_id()
+            wid = w.get_id()
+            print '( %s , %s, %3d)'  % ( vid, wid, v.get_weight(w))
+
+    for v in g:
+        print 'g.vert_dict[%s]=%s' %(v.get_id(), g.vert_dict[v.get_id()])
